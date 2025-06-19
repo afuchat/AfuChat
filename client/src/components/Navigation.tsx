@@ -1,11 +1,11 @@
 import { useLocation } from "wouter";
-import { Home, Search, Bell, MessageCircle, User } from "lucide-react";
+import { Home, Search, Bot, MessageCircle, User, Bell } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 const navItems = [
   { path: "/", label: "Home", icon: Home },
   { path: "/explore", label: "Explore", icon: Search },
-  { path: "/notifications", label: "Notifications", icon: Bell, badge: 2 },
+  { path: "/afuai", label: "AfuAI", icon: Bot },
   { path: "/messages", label: "Messages", icon: MessageCircle },
   { path: "/profile", label: "Profile", icon: User },
 ];
@@ -30,11 +30,7 @@ export function MobileNavigation() {
             >
               <Icon className="w-6 h-6 mb-1" />
               <span className="text-xs font-medium truncate">{item.label}</span>
-              {item.badge && (
-                <span className="absolute top-0 right-2 w-4 h-4 bg-primary text-white text-xs rounded-full flex items-center justify-center">
-                  {item.badge}
-                </span>
-              )}
+  
             </button>
           );
         })}
@@ -61,6 +57,15 @@ export function TopBar({ title }: { title: string }) {
         </div>
       </div>
       <div className="flex items-center space-x-3">
+        <button 
+          onClick={() => window.location.href = '/notifications'}
+          className="relative p-2 hover:bg-muted rounded-full transition-colors"
+        >
+          <Bell className="w-5 h-5" />
+          <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-xs rounded-full flex items-center justify-center">
+            2
+          </span>
+        </button>
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
             <span className="text-white text-sm font-bold">

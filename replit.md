@@ -1,8 +1,8 @@
-# Twitter Clone - Social Media Platform
+# AfuChat - Social Media Platform
 
 ## Overview
 
-Twitter Clone is a modern full-stack social media application built with React (frontend) and Express.js (backend). The platform replicates Twitter's core functionality including tweets, likes, retweets, comments, direct messaging, user profiles, and real-time feed updates. The application features a mobile-first design with authentic Twitter-style navigation and user interface.
+AfuChat is a modern full-stack social media application built with React (frontend) and Express.js (backend). The platform features advanced posting capabilities inspired by modern Twitter/X, including posts with privacy controls, character counting, media attachments, scheduling, and AI integration through AfuAI. The application uses a mobile-first design with notifications in the top bar and a five-section bottom navigation.
 
 ## System Architecture
 

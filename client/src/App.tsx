@@ -8,9 +8,10 @@ import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import Home from "@/pages/home";
 import Explore from "@/pages/explore";
-import Notifications from "@/pages/notifications";
+import AfuAI from "@/pages/afuai";
 import Messages from "@/pages/messages";
 import Profile from "@/pages/profile";
+import Notifications from "@/pages/notifications";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -23,9 +24,10 @@ function Router() {
         <>
           <Route path="/" component={Home} />
           <Route path="/explore" component={Explore} />
-          <Route path="/notifications" component={Notifications} />
+          <Route path="/afuai" component={AfuAI} />
           <Route path="/messages" component={Messages} />
           <Route path="/profile" component={Profile} />
+          <Route path="/notifications" component={Notifications} />
         </>
       )}
       <Route component={NotFound} />

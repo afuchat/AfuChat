@@ -1,154 +1,105 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
 import { MobileNavigation, TopBar } from "@/components/Navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Lightbulb, 
-  Send, 
-  Sparkles, 
-  Image as ImageIcon, 
-  FileText, 
-  MessageCircle,
-  Zap,
-  Brain,
-  Palette,
-  Code
-} from "lucide-react";
+import { Bot, Send, Sparkles, Zap, Brain, MessageCircle, FileText, Image, Code, Lightbulb } from "lucide-react";
 
-const aiFeatures = [
-  {
-    icon: Brain,
-    title: "Smart Assistant",
-    description: "Get intelligent answers to your questions",
-    color: "bg-blue-500",
-  },
-  {
-    icon: Palette,
-    title: "Content Creator",
-    description: "Generate creative content and ideas",
-    color: "bg-purple-500",
-  },
-  {
-    icon: ImageIcon,
-    title: "Image Generator",
-    description: "Create amazing images from text",
-    color: "bg-green-500",
-  },
-  {
-    icon: Code,
-    title: "Code Helper",
-    description: "Get help with programming tasks",
-    color: "bg-orange-500",
-  },
-];
-
-const sampleConversations = [
-  {
-    id: 1,
-    title: "Creative Writing Tips",
-    preview: "How can I improve my storytelling?",
-    timestamp: "2 hours ago",
-  },
-  {
-    id: 2,
-    title: "Tech Career Advice",
-    preview: "What skills should I learn for AI development?",
-    timestamp: "1 day ago",
-  },
-  {
-    id: 3,
-    title: "Recipe Ideas",
-    preview: "Suggest healthy dinner recipes",
-    timestamp: "3 days ago",
-  },
-];
+interface ChatMessage {
+  id: string;
+  type: 'user' | 'ai';
+  content: string;
+  timestamp: Date;
+}
 
 export default function AfuAI() {
-  const { toast } = useToast();
-  const { isAuthenticated, isLoading, user } = useAuth();
-  const [message, setMessage] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [chatMessages, setChatMessages] = useState<Array<{
-    id: number;
-    type: 'user' | 'ai';
-    content: string;
-    timestamp: Date;
-  }>>([
+  const { user } = useAuth();
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
-      id: 1,
-      type: 'ai',
-      content: "Hello! I'm AfuAI, your intelligent assistant. How can I help you today?",
-      timestamp: new Date(),
+      id: "1",
+      type: "ai",
+      content: "Hello! I'm AfuAI, your intelligent assistant. I can help you with content creation, analysis, coding, and much more. What would you like to work on today?",
+      timestamp: new Date(Date.now() - 1000 * 60 * 5)
     }
   ]);
-
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      toast({
-        title: "Unauthorized",
-        description: "You are logged out. Logging in again...",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        window.location.href = "/api/login";
-      }, 500);
-      return;
-    }
-  }, [isAuthenticated, isLoading, toast]);
+  const [currentMessage, setCurrentMessage] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
 
   const handleSendMessage = async () => {
-    if (!message.trim()) return;
+    if (!currentMessage.trim()) return;
 
-    const userMessage = {
-      id: chatMessages.length + 1,
-      type: 'user' as const,
-      content: message,
-      timestamp: new Date(),
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      type: 'user',
+      content: currentMessage,
+      timestamp: new Date()
     };
 
     setChatMessages(prev => [...prev, userMessage]);
-    setMessage("");
-    setIsGenerating(true);
+    setCurrentMessage("");
+    setIsTyping(true);
 
-    // Simulate AI response (in real app, this would call an AI API)
+    // Simulate AI response
     setTimeout(() => {
-      const aiResponse = {
-        id: chatMessages.length + 2,
-        type: 'ai' as const,
-        content: generateAIResponse(userMessage.content),
-        timestamp: new Date(),
+      const aiResponse: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        type: 'ai',
+        content: "I understand you'd like help with that. While I'm currently in demo mode, I can assist with various tasks including content creation, analysis, coding help, and creative brainstorming. What specific aspect would you like to explore?",
+        timestamp: new Date()
       };
       setChatMessages(prev => [...prev, aiResponse]);
-      setIsGenerating(false);
+      setIsTyping(false);
     }, 2000);
   };
 
-  const generateAIResponse = (input: string): string => {
-    // Simple response generator for demo purposes
-    const responses = [
-      "That's an interesting question! Let me help you with that. Here are some insights based on your query...",
-      "I understand what you're looking for. Based on current trends and best practices, I'd recommend...",
-      "Great question! This is a topic I can definitely help with. Here's what you should know...",
-      "I'd be happy to assist you with that. Let me break this down into actionable steps...",
-    ];
-    return responses[Math.floor(Math.random() * responses.length)];
-  };
+  const aiFeatures = [
+    {
+      icon: <FileText className="w-6 h-6" />,
+      title: "Content Creation",
+      description: "Generate posts, articles, and creative content"
+    },
+    {
+      icon: <Code className="w-6 h-6" />,
+      title: "Code Assistant",
+      description: "Get help with programming and debugging"
+    },
+    {
+      icon: <Brain className="w-6 h-6" />,
+      title: "Analysis",
+      description: "Data analysis and insights generation"
+    },
+    {
+      icon: <Lightbulb className="w-6 h-6" />,
+      title: "Ideas & Strategy",
+      description: "Brainstorming and strategic planning"
+    },
+    {
+      icon: <Image className="w-6 h-6" />,
+      title: "Visual Concepts",
+      description: "Image descriptions and visual ideas"
+    },
+    {
+      icon: <Zap className="w-6 h-6" />,
+      title: "Quick Tasks",
+      description: "Fast answers and quick solutions"
+    }
+  ];
 
-  if (isLoading) {
+  if (!user) {
     return (
       <div className="flex h-screen bg-background">
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <div className="w-8 h-8 bg-primary rounded-full animate-pulse mb-4"></div>
-            <p className="text-muted-foreground">Loading...</p>
+            <h2 className="text-xl font-semibold mb-2">Please log in</h2>
+            <p className="text-muted-foreground mb-4">You need to be logged in to access AfuAI.</p>
+            <Button onClick={() => window.location.href = '/api/login'}>
+              Log In
+            </Button>
           </div>
         </div>
       </div>
@@ -178,40 +129,46 @@ export default function AfuAI() {
                     <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                       <div className={`flex items-start space-x-3 max-w-[80%] ${msg.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
                         <Avatar className="w-8 h-8">
-                          <AvatarFallback className={msg.type === 'ai' ? 'bg-primary text-white' : 'bg-secondary text-white'}>
-                            {msg.type === 'ai' ? 'AI' : (user?.firstName?.[0] || user?.username?.[0] || 'U')}
-                          </AvatarFallback>
+                          {msg.type === 'ai' ? (
+                            <div className="w-full h-full bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+                              <Bot className="w-5 h-5 text-white" />
+                            </div>
+                          ) : (
+                            <>
+                              <AvatarImage src={user?.profileImageUrl || ""} />
+                              <AvatarFallback>
+                                {(user?.firstName?.[0] || user?.username?.[0] || "U").toUpperCase()}
+                              </AvatarFallback>
+                            </>
+                          )}
                         </Avatar>
-                        <div className={`rounded-2xl px-4 py-3 ${
+                        <div className={`rounded-2xl px-4 py-2 ${
                           msg.type === 'user' 
-                            ? 'bg-primary text-white' 
+                            ? 'bg-primary text-primary-foreground' 
                             : 'bg-muted'
                         }`}>
                           <p className="text-sm">{msg.content}</p>
-                          <p className={`text-xs mt-1 ${
-                            msg.type === 'user' ? 'text-primary-foreground/70' : 'text-muted-foreground'
-                          }`}>
+                          <span className="text-xs opacity-70 mt-1 block">
                             {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </p>
+                          </span>
                         </div>
                       </div>
                     </div>
                   ))}
                   
-                  {isGenerating && (
+                  {isTyping && (
                     <div className="flex justify-start">
                       <div className="flex items-start space-x-3 max-w-[80%]">
                         <Avatar className="w-8 h-8">
-                          <AvatarFallback className="bg-primary text-white">AI</AvatarFallback>
+                          <div className="w-full h-full bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+                            <Bot className="w-5 h-5 text-white" />
+                          </div>
                         </Avatar>
-                        <div className="bg-muted rounded-2xl px-4 py-3">
-                          <div className="flex items-center space-x-2">
-                            <div className="flex space-x-1">
-                              <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
-                              <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                              <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                            </div>
-                            <span className="text-xs text-muted-foreground">AI is thinking...</span>
+                        <div className="bg-muted rounded-2xl px-4 py-2">
+                          <div className="flex space-x-1">
+                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                           </div>
                         </div>
                       </div>
@@ -220,152 +177,99 @@ export default function AfuAI() {
                 </div>
 
                 {/* Message Input */}
-                <div className="border-t border-border p-4 bg-card">
-                  <div className="flex items-end space-x-3">
-                    <div className="flex-1">
-                      <Textarea
-                        placeholder="Ask me anything..."
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleSendMessage();
-                          }
-                        }}
-                        className="min-h-[60px] resize-none border-0 bg-muted focus-visible:ring-2 focus-visible:ring-primary/20"
-                        disabled={isGenerating}
-                      />
-                    </div>
+                <div className="border-t border-border p-4">
+                  <div className="flex space-x-2">
+                    <Input
+                      placeholder="Ask AfuAI anything..."
+                      value={currentMessage}
+                      onChange={(e) => setCurrentMessage(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                      className="flex-1"
+                    />
                     <Button 
                       onClick={handleSendMessage}
-                      disabled={!message.trim() || isGenerating}
-                      className="bg-primary hover:bg-primary/90 text-white p-3"
+                      disabled={!currentMessage.trim() || isTyping}
+                      size="icon"
+                      className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
                     >
-                      <Send className="w-5 h-5" />
+                      <Send className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
               </div>
             </TabsContent>
 
-            <TabsContent value="features" className="p-4 lg:p-6">
-              <div className="space-y-6">
-                <div className="text-center space-y-4">
-                  <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto">
-                    <Sparkles className="w-8 h-8 text-primary" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold mb-2">AI-Powered Features</h2>
-                    <p className="text-muted-foreground">
-                      Discover what AfuAI can do for you
-                    </p>
-                  </div>
+            <TabsContent value="features" className="p-4 space-y-6">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Sparkles className="w-8 h-8 text-white" />
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {aiFeatures.map((feature, index) => {
-                    const Icon = feature.icon;
-                    return (
-                      <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
-                        <CardContent className="p-6">
-                          <div className="flex items-start space-x-4">
-                            <div className={`w-12 h-12 ${feature.color} rounded-xl flex items-center justify-center`}>
-                              <Icon className="w-6 h-6 text-white" />
-                            </div>
-                            <div className="flex-1">
-                              <h3 className="font-semibold mb-2">{feature.title}</h3>
-                              <p className="text-sm text-muted-foreground">{feature.description}</p>
-                              <Button variant="outline" size="sm" className="mt-3">
-                                Try Now
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <Zap className="w-5 h-5" />
-                      <span>Quick Actions</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <Button variant="outline" className="h-auto p-4 flex flex-col items-center space-y-2">
-                      <FileText className="w-6 h-6" />
-                      <span className="text-xs">Summarize Text</span>
-                    </Button>
-                    <Button variant="outline" className="h-auto p-4 flex flex-col items-center space-y-2">
-                      <ImageIcon className="w-6 h-6" />
-                      <span className="text-xs">Generate Image</span>
-                    </Button>
-                    <Button variant="outline" className="h-auto p-4 flex flex-col items-center space-y-2">
-                      <MessageCircle className="w-6 h-6" />
-                      <span className="text-xs">Write Post</span>
-                    </Button>
-                    <Button variant="outline" className="h-auto p-4 flex flex-col items-center space-y-2">
-                      <Lightbulb className="w-6 h-6" />
-                      <span className="text-xs">Get Ideas</span>
-                    </Button>
-                  </CardContent>
-                </Card>
+                <h2 className="text-2xl font-bold mb-2">AI-Powered Features</h2>
+                <p className="text-muted-foreground">Discover what AfuAI can help you accomplish</p>
               </div>
-            </TabsContent>
 
-            <TabsContent value="history" className="p-4 lg:p-6">
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-semibold">Chat History</h2>
-                  <Button variant="outline" size="sm">
-                    Clear All
-                  </Button>
-                </div>
-
-                <div className="space-y-4">
-                  {sampleConversations.map((conversation) => (
-                    <Card key={conversation.id} className="hover:shadow-md transition-shadow cursor-pointer">
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h3 className="font-medium mb-1">{conversation.title}</h3>
-                            <p className="text-sm text-muted-foreground mb-2">{conversation.preview}</p>
-                            <div className="flex items-center space-x-2">
-                              <Badge variant="secondary" className="text-xs">
-                                {conversation.timestamp}
-                              </Badge>
-                            </div>
-                          </div>
-                          <Button variant="ghost" size="sm">
-                            Continue
-                          </Button>
+              <div className="grid grid-cols-1 gap-4">
+                {aiFeatures.map((feature, index) => (
+                  <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
+                    <CardContent className="p-4">
+                      <div className="flex items-start space-x-4">
+                        <div className="text-primary">
+                          {feature.icon}
                         </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-
-                {sampleConversations.length === 0 && (
-                  <Card>
-                    <CardContent className="p-8 text-center">
-                      <MessageCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">No conversations yet</h3>
-                      <p className="text-muted-foreground">
-                        Start chatting with AfuAI to see your history here
-                      </p>
+                        <div className="flex-1">
+                          <h3 className="font-semibold mb-1">{feature.title}</h3>
+                          <p className="text-sm text-muted-foreground">{feature.description}</p>
+                        </div>
+                      </div>
                     </CardContent>
                   </Card>
-                )}
+                ))}
+              </div>
+
+              <Card className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 border-purple-200 dark:border-purple-800">
+                <CardContent className="p-4 text-center">
+                  <Bot className="w-12 h-12 text-purple-500 mx-auto mb-3" />
+                  <h3 className="font-semibold mb-2">Start Chatting</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Ready to explore AI capabilities? Switch to the Chat tab and start a conversation!
+                  </p>
+                  <Button 
+                    onClick={() => {
+                      const chatTab = document.querySelector('[value="chat"]') as HTMLElement;
+                      chatTab?.click();
+                    }}
+                    className="bg-gradient-to-r from-purple-500 to-blue-500"
+                  >
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    Open Chat
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="history" className="p-4">
+              <div className="text-center py-8">
+                <Bot className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="font-semibold text-lg mb-2">No Chat History</h3>
+                <p className="text-muted-foreground mb-4">
+                  Your conversation history will appear here once you start chatting with AfuAI.
+                </p>
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    const chatTab = document.querySelector('[value="chat"]') as HTMLElement;
+                    chatTab?.click();
+                  }}
+                >
+                  Start Your First Chat
+                </Button>
               </div>
             </TabsContent>
           </Tabs>
         </main>
+        
+        <MobileNavigation />
       </div>
-      
-      <MobileNavigation />
     </div>
   );
 }

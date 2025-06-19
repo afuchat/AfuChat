@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -10,13 +10,20 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Heart, MessageCircle, Repeat2, Share, MoreHorizontal, Image, Smile, MapPin, Calendar } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Heart, MessageCircle, Repeat2, Share, MoreHorizontal, Image, Smile, MapPin, Calendar, Mic, FileText, Zap, Globe, Users, Lock, MessageSquare } from "lucide-react";
 import type { Post } from "@shared/schema";
 
-function TweetComposer() {
+function PostComposer() {
   const { user } = useAuth();
   const [content, setContent] = useState("");
+  const [privacy, setPrivacy] = useState("everyone");
+  const [isScheduled, setIsScheduled] = useState(false);
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const maxLength = 280;
+  const progressValue = (content.length / maxLength) * 100;
   
   const createPost = useMutation({
     mutationFn: async (data: { content: string }) => {
@@ -26,8 +33,8 @@ function TweetComposer() {
       setContent("");
       queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
       toast({
-        title: "Tweet posted",
-        description: "Your tweet has been shared successfully.",
+        title: "Post shared",
+        description: "Your post has been shared successfully.",
       });
     },
     onError: (error) => {
@@ -43,7 +50,7 @@ function TweetComposer() {
         return;
       }
       toast({
-        title: "Error posting tweet",
+        title: "Error posting",
         description: "Please try again.",
         variant: "destructive",
       });
@@ -51,8 +58,17 @@ function TweetComposer() {
   });
 
   const handleSubmit = () => {
-    if (!content.trim()) return;
+    if (!content.trim() || content.length > maxLength) return;
     createPost.mutate({ content });
+  };
+
+  const getPrivacyIcon = () => {
+    switch (privacy) {
+      case "everyone": return <Globe className="w-4 h-4" />;
+      case "followers": return <Users className="w-4 h-4" />;
+      case "mentions": return <MessageSquare className="w-4 h-4" />;
+      default: return <Lock className="w-4 h-4" />;
+    }
   };
 
   return (
@@ -65,27 +81,93 @@ function TweetComposer() {
           </AvatarFallback>
         </Avatar>
         <div className="flex-1">
+          {/* Privacy selector */}
+          <div className="flex items-center space-x-2 mb-3">
+            <button className="flex items-center space-x-1 text-sm text-primary hover:bg-primary/10 rounded-full px-3 py-1">
+              {getPrivacyIcon()}
+              <span className="capitalize">{privacy}</span>
+            </button>
+          </div>
+          
           <Textarea
             placeholder="What's happening?"
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="border-none resize-none text-xl placeholder:text-xl focus-visible:ring-0 bg-transparent"
-            rows={3}
+            className="border-none resize-none text-xl placeholder:text-xl focus-visible:ring-0 bg-transparent min-h-[120px]"
+            maxLength={maxLength}
           />
-          <div className="flex items-center justify-between mt-4">
-            <div className="flex items-center space-x-4 text-primary">
-              <Image className="w-5 h-5 cursor-pointer hover:bg-primary/10 rounded-full p-1 w-7 h-7" />
-              <Smile className="w-5 h-5 cursor-pointer hover:bg-primary/10 rounded-full p-1 w-7 h-7" />
-              <MapPin className="w-5 h-5 cursor-pointer hover:bg-primary/10 rounded-full p-1 w-7 h-7" />
+          
+          {/* Character count */}
+          {content.length > 0 && (
+            <div className="flex items-center justify-end mt-2">
+              <div className="flex items-center space-x-2">
+                <div className="relative w-6 h-6">
+                  <Progress 
+                    value={progressValue} 
+                    className={`w-6 h-6 ${progressValue > 90 ? 'text-red-500' : 'text-primary'}`}
+                  />
+                  {content.length > maxLength - 20 && (
+                    <span className={`absolute inset-0 flex items-center justify-center text-xs font-bold ${content.length > maxLength ? 'text-red-500' : 'text-orange-500'}`}>
+                      {maxLength - content.length}
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
-            <Button 
-              onClick={handleSubmit} 
-              disabled={!content.trim() || createPost.isPending}
-              className="rounded-full px-6"
-            >
-              {createPost.isPending ? "Posting..." : "Tweet"}
-            </Button>
+          )}
+          
+          <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center space-x-4">
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                className="text-primary hover:bg-primary/10 rounded-full p-2 transition-colors"
+              >
+                <Image className="w-5 h-5" />
+              </button>
+              <button className="text-primary hover:bg-primary/10 rounded-full p-2 transition-colors">
+                <FileText className="w-5 h-5" />
+              </button>
+              <button className="text-primary hover:bg-primary/10 rounded-full p-2 transition-colors">
+                <Smile className="w-5 h-5" />
+              </button>
+              <button className="text-primary hover:bg-primary/10 rounded-full p-2 transition-colors">
+                <Mic className="w-5 h-5" />
+              </button>
+              <button className="text-primary hover:bg-primary/10 rounded-full p-2 transition-colors">
+                <Calendar className="w-5 h-5" />
+              </button>
+              <button className="text-primary hover:bg-primary/10 rounded-full p-2 transition-colors">
+                <MapPin className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              {content.length > 0 && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="rounded-full"
+                >
+                  Draft
+                </Button>
+              )}
+              <Button 
+                onClick={handleSubmit} 
+                disabled={!content.trim() || content.length > maxLength || createPost.isPending}
+                className="rounded-full px-6 bg-primary hover:bg-primary/90"
+              >
+                {createPost.isPending ? "Posting..." : "Post"}
+              </Button>
+            </div>
           </div>
+          
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,video/*"
+            className="hidden"
+            multiple
+          />
         </div>
       </div>
     </div>
@@ -229,9 +311,9 @@ function PostsList() {
   if (posts.length === 0) {
     return (
       <div className="text-center py-8">
-        <h3 className="font-semibold text-lg mb-2">Welcome to Twitter!</h3>
+        <h3 className="font-semibold text-lg mb-2">Welcome to AfuChat!</h3>
         <p className="text-muted-foreground">
-          This is your timeline. Share your first tweet to get started.
+          This is your timeline. Share your first post to get started.
         </p>
       </div>
     );
@@ -271,7 +353,7 @@ export default function Home() {
         <TopBar title="Home" />
         
         <main className="flex-1 overflow-y-auto mobile-content">
-          <TweetComposer />
+          <PostComposer />
           <PostsList />
         </main>
         
