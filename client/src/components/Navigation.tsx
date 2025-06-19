@@ -1,6 +1,7 @@
 import { useLocation } from "wouter";
-import { Home, Search, Bot, MessageCircle, User, Bell } from "lucide-react";
+import { Home, Search, Bot, MessageCircle, User, Bell, Crown } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
 
 const navItems = [
   { path: "/", label: "Home", icon: Home },
@@ -72,14 +73,13 @@ export function TopBar({ title }: { title: string }) {
               {user?.firstName?.[0] || user?.username?.[0] || "U"}
             </span>
           </div>
-          <button
-            onClick={handleLogout}
-            className="text-gray-400 hover:text-gray-600 p-1"
+          <Button 
+            onClick={() => window.location.href = '/premium'}
+            className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold px-3 py-1.5 rounded-full shadow-lg transition-all duration-200 hover:shadow-xl text-sm"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-            </svg>
-          </button>
+            <Crown className="w-4 h-4 mr-1" />
+            Premium
+          </Button>
         </div>
       </div>
     </header>

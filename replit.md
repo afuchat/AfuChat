@@ -102,6 +102,10 @@ Key tables include:
 ```
 Changelog:
 - June 19, 2025. Initial setup
+- June 19, 2025. Integrated real OpenAI API for AfuAI chat and content enhancement
+- June 19, 2025. Added premium subscription features with golden crown button in top bar
+- June 19, 2025. Fixed home page layout consistency with proper spacing and mobile responsiveness
+- June 19, 2025. Replaced logout button with Premium subscription button in top navigation
 ```
 
 ## User Preferences

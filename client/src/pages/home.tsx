@@ -461,12 +461,14 @@ export default function Home() {
 
   return (
     <div className="flex h-screen bg-background">
-      <div className="flex-1">
+      <div className="flex-1 flex flex-col">
         <TopBar title="Home" />
         
-        <main className="flex-1 overflow-y-auto mobile-content">
-          <PostComposer />
-          <PostsList />
+        <main className="flex-1 overflow-y-auto mobile-content pb-20">
+          <div className="max-w-2xl mx-auto">
+            <PostComposer />
+            <PostsList />
+          </div>
         </main>
         
         <MobileNavigation />
