@@ -7,10 +7,10 @@ import { useAuth } from "@/hooks/useAuth";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import Home from "@/pages/home";
-import Search from "@/pages/search";
-import AfuAI from "@/pages/afuai";
-import AfuMall from "@/pages/afumall";
+import Explore from "@/pages/explore";
+import Notifications from "@/pages/notifications";
 import Messages from "@/pages/messages";
+import Profile from "@/pages/profile";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -22,10 +22,10 @@ function Router() {
       ) : (
         <>
           <Route path="/" component={Home} />
-          <Route path="/search" component={Search} />
-          <Route path="/afuai" component={AfuAI} />
-          <Route path="/afumall" component={AfuMall} />
+          <Route path="/explore" component={Explore} />
+          <Route path="/notifications" component={Notifications} />
           <Route path="/messages" component={Messages} />
+          <Route path="/profile" component={Profile} />
         </>
       )}
       <Route component={NotFound} />

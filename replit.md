@@ -1,8 +1,8 @@
-# AfuSocial - Social Media Platform
+# Twitter Clone - Social Media Platform
 
 ## Overview
 
-AfuSocial is a modern full-stack social media application built with React (frontend) and Express.js (backend). The platform provides core social media features including posts, likes, comments, messaging, user authentication, and two additional specialized modules: AfuAI (AI assistant features) and AfuMall (e-commerce marketplace).
+Twitter Clone is a modern full-stack social media application built with React (frontend) and Express.js (backend). The platform replicates Twitter's core functionality including tweets, likes, retweets, comments, direct messaging, user profiles, and real-time feed updates. The application features a mobile-first design with authentic Twitter-style navigation and user interface.
 
 ## System Architecture
 
@@ -24,10 +24,10 @@ AfuSocial is a modern full-stack social media application built with React (fron
 
 ### Frontend Architecture
 - **Component Library**: shadcn/ui with Radix UI primitives
-- **Styling**: Tailwind CSS with custom design system (purple/blue theme)
+- **Styling**: Tailwind CSS with Twitter-inspired design system (blue theme)
 - **State Management**: TanStack Query for server state, React hooks for local state
 - **Routing**: Wouter for client-side routing
-- **Layout**: Responsive design with desktop sidebar and mobile navigation
+- **Layout**: Mobile-first design with bottom navigation bar (Home, Explore, Notifications, Messages, Profile)
 
 ### Backend Architecture
 - **API Structure**: RESTful endpoints under `/api` prefix
@@ -38,10 +38,10 @@ AfuSocial is a modern full-stack social media application built with React (fron
 
 ### Database Schema
 Key tables include:
-- **users**: User profiles with social media fields (followers, posts counts)
-- **posts**: User-generated content with engagement metrics
-- **likes**: Post likes relationship table
-- **comments**: Nested comments on posts
+- **users**: User profiles with Twitter-style fields (bio, verified status, follower counts)
+- **posts**: Tweet content with engagement metrics and timestamps
+- **likes**: Tweet likes relationship table
+- **comments**: Replies to tweets
 - **follows**: User following relationships
 - **conversations & messages**: Direct messaging system
 - **sessions**: Authentication session storage (required for Replit Auth)

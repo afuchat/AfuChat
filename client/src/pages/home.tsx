@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -7,140 +7,108 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import { MobileNavigation, TopBar } from "@/components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
-import { Heart, MessageCircle, Share, Bookmark, Image, Smile, Plus } from "lucide-react";
-import type { Post, User } from "@shared/schema";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Heart, MessageCircle, Repeat2, Share, MoreHorizontal, Image, Smile, MapPin, Calendar } from "lucide-react";
+import type { Post } from "@shared/schema";
 
-function StorySection() {
+function TweetComposer() {
+  const { user } = useAuth();
+  const [content, setContent] = useState("");
+  const { toast } = useToast();
+  
+  const createPost = useMutation({
+    mutationFn: async (data: { content: string }) => {
+      return await apiRequest('/api/posts', 'POST', data);
+    },
+    onSuccess: () => {
+      setContent("");
+      queryClient.invalidateQueries({ queryKey: ['/api/posts'] });
+      toast({
+        title: "Tweet posted",
+        description: "Your tweet has been shared successfully.",
+      });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error posting tweet",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSubmit = () => {
+    if (!content.trim()) return;
+    createPost.mutate({ content });
+  };
+
   return (
-    <div className="p-4">
-      <div className="flex space-x-4 overflow-x-auto pb-4">
-        <div className="flex-shrink-0 text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full p-0.5">
-            <div className="w-full h-full bg-card rounded-full flex items-center justify-center">
-              <Plus className="w-8 h-8 text-primary" />
+    <div className="border-b border-border p-4">
+      <div className="flex space-x-3">
+        <Avatar className="w-12 h-12">
+          <AvatarImage src={user?.profileImageUrl || ""} />
+          <AvatarFallback>
+            {(user?.firstName?.[0] || user?.username?.[0] || "U").toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1">
+          <Textarea
+            placeholder="What's happening?"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="border-none resize-none text-xl placeholder:text-xl focus-visible:ring-0 bg-transparent"
+            rows={3}
+          />
+          <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center space-x-4 text-primary">
+              <Image className="w-5 h-5 cursor-pointer hover:bg-primary/10 rounded-full p-1 w-7 h-7" />
+              <Smile className="w-5 h-5 cursor-pointer hover:bg-primary/10 rounded-full p-1 w-7 h-7" />
+              <MapPin className="w-5 h-5 cursor-pointer hover:bg-primary/10 rounded-full p-1 w-7 h-7" />
             </div>
+            <Button 
+              onClick={handleSubmit} 
+              disabled={!content.trim() || createPost.isPending}
+              className="rounded-full px-6"
+            >
+              {createPost.isPending ? "Posting..." : "Tweet"}
+            </Button>
           </div>
-          <p className="text-xs mt-2 font-medium">Your Story</p>
         </div>
-        {/* Story placeholders - in a real app, these would come from API */}
-        {["Sarah", "Mike", "Emma", "John"].map((name, index) => (
-          <div key={name} className="flex-shrink-0 text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full p-0.5">
-              <Avatar className="w-full h-full">
-                <AvatarFallback>{name[0]}</AvatarFallback>
-              </Avatar>
-            </div>
-            <p className="text-xs mt-2 font-medium">{name}</p>
-          </div>
-        ))}
       </div>
     </div>
   );
 }
 
-function PostCreation() {
+function PostCard({ post }: { post: Post }) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [content, setContent] = useState("");
-
-  const createPostMutation = useMutation({
-    mutationFn: async (postData: { content: string }) => {
-      const response = await apiRequest("POST", "/api/posts", postData);
-      return response.json();
-    },
-    onSuccess: () => {
-      setContent("");
-      queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
-      toast({
-        title: "Success",
-        description: "Post created successfully!",
-      });
-    },
-    onError: (error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
-      toast({
-        title: "Error",
-        description: "Failed to create post. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleCreatePost = () => {
-    if (!content.trim()) return;
-    createPostMutation.mutate({ content: content.trim() });
-  };
-
-  return (
-    <div className="px-4 mb-6">
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-start space-x-3 mb-4">
-            <Avatar className="w-10 h-10">
-              <AvatarImage src={user?.profileImageUrl || ""} alt="Your avatar" />
-              <AvatarFallback>
-                {user?.firstName?.[0] || user?.username?.[0] || "U"}
-              </AvatarFallback>
-            </Avatar>
-            <Textarea
-              placeholder="What's on your mind?"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className="flex-1 min-h-[80px] resize-none border-0 focus-visible:ring-0 bg-muted"
-            />
-          </div>
-          <div className="flex items-center justify-between pt-4 border-t border-border">
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" className="text-gray-600 hover:text-primary">
-                <Image className="w-5 h-5 mr-2" />
-                Photo
-              </Button>
-              <Button variant="ghost" size="sm" className="text-gray-600 hover:text-primary">
-                <Smile className="w-5 h-5 mr-2" />
-                Feeling
-              </Button>
-            </div>
-            <Button 
-              onClick={handleCreatePost}
-              disabled={!content.trim() || createPostMutation.isPending}
-              className="bg-primary hover:bg-primary/90 text-white px-6"
-            >
-              {createPostMutation.isPending ? "Posting..." : "Post"}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-function PostCard({ post }: { post: Post }) {
-  const { toast } = useToast();
   const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
 
-  const likeMutation = useMutation({
+  const likePost = useMutation({
     mutationFn: async () => {
       if (isLiked) {
-        await apiRequest("DELETE", `/api/posts/${post.id}/like`);
+        await apiRequest(`/api/posts/${post.id}/unlike`, 'DELETE');
       } else {
-        await apiRequest("POST", `/api/posts/${post.id}/like`);
+        await apiRequest(`/api/posts/${post.id}/like`, 'POST');
       }
     },
     onSuccess: () => {
       setIsLiked(!isLiked);
-      queryClient.invalidateQueries({ queryKey: ["/api/posts"] });
+      setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
     },
     onError: (error) => {
       if (isUnauthorizedError(error)) {
@@ -156,119 +124,141 @@ function PostCard({ post }: { post: Post }) {
       }
       toast({
         title: "Error",
-        description: "Failed to update like. Please try again.",
+        description: "Failed to like post. Please try again.",
         variant: "destructive",
       });
     },
   });
 
-  const formatTimeAgo = (date: Date | null) => {
-    if (!date) return "now";
+  const formatTimestamp = (timestamp: string) => {
     const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - new Date(date).getTime()) / (1000 * 60 * 60));
-    if (diffInHours < 1) return "now";
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    const diffInDays = Math.floor(diffInHours / 24);
-    return `${diffInDays}d ago`;
+    const postTime = new Date(timestamp);
+    const diff = now.getTime() - postTime.getTime();
+    const minutes = Math.floor(diff / (1000 * 60));
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (minutes < 60) {
+      return `${minutes}m`;
+    } else if (hours < 24) {
+      return `${hours}h`;
+    } else {
+      return `${days}d`;
+    }
   };
 
   return (
-    <Card className="overflow-hidden">
-      <CardContent className="p-4">
-        <div className="flex items-start space-x-3">
-          <Avatar className="w-12 h-12">
-            <AvatarFallback>U</AvatarFallback>
-          </Avatar>
-          <div className="flex-1">
-            <div className="flex items-center space-x-2">
-              <h3 className="font-semibold text-sm">User</h3>
-              <span className="text-xs text-gray-500">
-                {formatTimeAgo(post.createdAt)}
-              </span>
+    <div className="border-b border-border p-4 hover:bg-muted/50 cursor-pointer">
+      <div className="flex space-x-3">
+        <Avatar className="w-10 h-10">
+          <AvatarImage src={user?.profileImageUrl || ""} />
+          <AvatarFallback>
+            {(user?.firstName?.[0] || user?.username?.[0] || "U").toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center space-x-2">
+            <span className="font-semibold">{user?.firstName || user?.username}</span>
+            <span className="text-muted-foreground">@{user?.username}</span>
+            <span className="text-muted-foreground">·</span>
+            <span className="text-muted-foreground text-sm">
+              {formatTimestamp(post.createdAt?.toString() || new Date().toISOString())}
+            </span>
+            <div className="ml-auto">
+              <MoreHorizontal className="w-5 h-5 text-muted-foreground hover:bg-muted rounded-full p-1 w-7 h-7" />
             </div>
-            <p className="text-gray-600 text-xs">@user</p>
           </div>
-          <Button variant="ghost" size="sm" className="text-gray-400 hover:text-gray-600">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
-            </svg>
-          </Button>
-        </div>
-        <div className="mt-3">
-          <p className="text-sm">{post.content}</p>
-        </div>
-        {post.imageUrl && (
-          <div className="mt-3">
-            <img 
-              src={post.imageUrl} 
-              alt="Post content" 
-              className="w-full h-64 object-cover rounded-lg"
-            />
-          </div>
-        )}
-        <div className="flex items-center justify-between mt-4">
-          <div className="flex items-center space-x-6">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => likeMutation.mutate()}
-              disabled={likeMutation.isPending}
-              className={`flex items-center space-x-2 ${
-                isLiked ? "text-red-500 hover:text-red-600" : "text-gray-600 hover:text-red-500"
+          
+          <p className="mt-2 text-sm leading-relaxed">{post.content}</p>
+          
+          <div className="flex items-center justify-between mt-4 max-w-md">
+            <button className="flex items-center space-x-2 text-muted-foreground hover:text-blue-500 transition-colors">
+              <MessageCircle className="w-5 h-5 hover:bg-blue-500/10 rounded-full p-1 w-7 h-7" />
+              <span className="text-sm">0</span>
+            </button>
+            
+            <button className="flex items-center space-x-2 text-muted-foreground hover:text-green-500 transition-colors">
+              <Repeat2 className="w-5 h-5 hover:bg-green-500/10 rounded-full p-1 w-7 h-7" />
+              <span className="text-sm">0</span>
+            </button>
+            
+            <button 
+              onClick={() => likePost.mutate()}
+              className={`flex items-center space-x-2 transition-colors ${
+                isLiked ? 'text-red-500' : 'text-muted-foreground hover:text-red-500'
               }`}
             >
-              <Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
-              <span className="text-sm">{post.likesCount || 0}</span>
-            </Button>
-            <Button variant="ghost" size="sm" className="flex items-center space-x-2 text-gray-600 hover:text-primary">
-              <MessageCircle className="w-5 h-5" />
-              <span className="text-sm">{post.commentsCount || 0}</span>
-            </Button>
-            <Button variant="ghost" size="sm" className="flex items-center space-x-2 text-gray-600 hover:text-primary">
-              <Share className="w-5 h-5" />
-              <span className="text-sm">Share</span>
-            </Button>
+              <Heart className={`w-5 h-5 hover:bg-red-500/10 rounded-full p-1 w-7 h-7 ${isLiked ? 'fill-current' : ''}`} />
+              <span className="text-sm">{likeCount}</span>
+            </button>
+            
+            <button className="flex items-center space-x-2 text-muted-foreground hover:text-blue-500 transition-colors">
+              <Share className="w-5 h-5 hover:bg-blue-500/10 rounded-full p-1 w-7 h-7" />
+            </button>
           </div>
-          <Button variant="ghost" size="sm" className="text-gray-400 hover:text-gray-600">
-            <Bookmark className="w-5 h-5" />
-          </Button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
-export default function Home() {
-  const { toast } = useToast();
-  const { isAuthenticated, isLoading } = useAuth();
-
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      toast({
-        title: "Unauthorized",
-        description: "You are logged out. Logging in again...",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        window.location.href = "/api/login";
-      }, 500);
-      return;
-    }
-  }, [isAuthenticated, isLoading, toast]);
-
-  const { data: posts, isLoading: postsLoading } = useQuery<Post[]>({
+function PostsList() {
+  const { data: posts = [], isLoading } = useQuery<Post[]>({
     queryKey: ["/api/posts"],
-    enabled: isAuthenticated,
   });
 
   if (isLoading) {
     return (
+      <div className="space-y-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="border-b border-border p-4">
+            <div className="flex space-x-3">
+              <div className="w-10 h-10 bg-muted rounded-full animate-pulse"></div>
+              <div className="flex-1 space-y-2">
+                <div className="h-4 bg-muted rounded w-1/3 animate-pulse"></div>
+                <div className="h-4 bg-muted rounded animate-pulse"></div>
+                <div className="h-4 bg-muted rounded w-2/3 animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (posts.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <h3 className="font-semibold text-lg mb-2">Welcome to Twitter!</h3>
+        <p className="text-muted-foreground">
+          This is your timeline. Share your first tweet to get started.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {posts.map((post) => (
+        <PostCard key={post.id} post={post} />
+      ))}
+    </div>
+  );
+}
+
+export default function Home() {
+  const { user } = useAuth();
+
+  if (!user) {
+    return (
       <div className="flex h-screen bg-background">
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <div className="w-8 h-8 bg-primary rounded-full animate-pulse mb-4"></div>
-            <p className="text-muted-foreground">Loading...</p>
+            <h2 className="text-xl font-semibold mb-2">Please log in</h2>
+            <p className="text-muted-foreground mb-4">You need to be logged in to view your feed.</p>
+            <Button onClick={() => window.location.href = '/api/login'}>
+              Log In
+            </Button>
           </div>
         </div>
       </div>
@@ -281,54 +271,12 @@ export default function Home() {
         <TopBar title="Home" />
         
         <main className="flex-1 overflow-y-auto mobile-content">
-          <StorySection />
-          <PostCreation />
-          
-          <div className="px-4 space-y-6">
-            {postsLoading ? (
-              <div className="space-y-4">
-                {[1, 2, 3].map((i) => (
-                  <Card key={i} className="overflow-hidden">
-                    <CardContent className="p-4">
-                      <div className="animate-pulse">
-                        <div className="flex items-start space-x-3">
-                          <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
-                          <div className="flex-1">
-                            <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                            <div className="h-3 bg-gray-200 rounded w-1/6"></div>
-                          </div>
-                        </div>
-                        <div className="mt-3">
-                          <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : posts && posts.length > 0 ? (
-              posts.map((post) => (
-                <PostCard key={post.id} post={post} />
-              ))
-            ) : (
-              <Card>
-                <CardContent className="p-8 text-center">
-                  <div className="text-gray-400 mb-4">
-                    <MessageCircle className="w-12 h-12 mx-auto" />
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">No posts yet</h3>
-                  <p className="text-muted-foreground">
-                    Be the first to share something with your community!
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
+          <TweetComposer />
+          <PostsList />
         </main>
+        
+        <MobileNavigation />
       </div>
-      
-      <MobileNavigation />
     </div>
   );
 }

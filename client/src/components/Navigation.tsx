@@ -1,13 +1,13 @@
 import { useLocation } from "wouter";
-import { Home, Search, Lightbulb, ShoppingBag, MessageCircle } from "lucide-react";
+import { Home, Search, Bell, MessageCircle, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 const navItems = [
   { path: "/", label: "Home", icon: Home },
-  { path: "/search", label: "Search", icon: Search },
-  { path: "/afuai", label: "AfuAI", icon: Lightbulb },
-  { path: "/afumall", label: "AfuMall", icon: ShoppingBag },
-  { path: "/messages", label: "Messages", icon: MessageCircle, badge: 3 },
+  { path: "/explore", label: "Explore", icon: Search },
+  { path: "/notifications", label: "Notifications", icon: Bell, badge: 2 },
+  { path: "/messages", label: "Messages", icon: MessageCircle },
+  { path: "/profile", label: "Profile", icon: User },
 ];
 
 export function MobileNavigation() {
