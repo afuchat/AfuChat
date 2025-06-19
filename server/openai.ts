@@ -28,9 +28,18 @@ export async function generateAIResponse(message: string, conversationHistory: A
     });
 
     return response.choices[0].message.content || "I apologize, but I couldn't generate a response. Please try again.";
-  } catch (error) {
+  } catch (error: any) {
     console.error("OpenAI API error:", error);
-    throw new Error("Failed to generate AI response. Please check your API key and try again.");
+    
+    if (error.status === 429 || error.code === 'insufficient_quota') {
+      throw new Error("OpenAI API quota exceeded. Please check your billing and usage limits at https://platform.openai.com/account/billing");
+    }
+    
+    if (error.status === 401) {
+      throw new Error("Invalid OpenAI API key. Please check your API key configuration.");
+    }
+    
+    throw new Error("AI service temporarily unavailable. Please try again later.");
   }
 }
 
@@ -54,9 +63,18 @@ export async function generateContentSuggestions(topic: string): Promise<string[
 
     const result = JSON.parse(response.choices[0].message.content || '{"suggestions": []}');
     return result.suggestions || [];
-  } catch (error) {
+  } catch (error: any) {
     console.error("OpenAI content suggestions error:", error);
-    throw new Error("Failed to generate content suggestions.");
+    
+    if (error.status === 429 || error.code === 'insufficient_quota') {
+      throw new Error("OpenAI API quota exceeded. Please check your billing and usage limits at https://platform.openai.com/account/billing");
+    }
+    
+    if (error.status === 401) {
+      throw new Error("Invalid OpenAI API key. Please check your API key configuration.");
+    }
+    
+    throw new Error("AI service temporarily unavailable. Please try again later.");
   }
 }
 
@@ -79,8 +97,17 @@ export async function improvePost(content: string): Promise<string> {
     });
 
     return response.choices[0].message.content || content;
-  } catch (error) {
+  } catch (error: any) {
     console.error("OpenAI post improvement error:", error);
-    throw new Error("Failed to improve post.");
+    
+    if (error.status === 429 || error.code === 'insufficient_quota') {
+      throw new Error("OpenAI API quota exceeded. Please check your billing and usage limits at https://platform.openai.com/account/billing");
+    }
+    
+    if (error.status === 401) {
+      throw new Error("Invalid OpenAI API key. Please check your API key configuration.");
+    }
+    
+    throw new Error("AI service temporarily unavailable. Please try again later.");
   }
 }
