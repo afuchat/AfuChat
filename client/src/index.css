@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(210, 11%, 98%); /* #F5F7FA */
+  --foreground: hsl(230, 15%, 9%); /* #1A1D29 */
+  --muted: hsl(210, 11%, 96%); /* #F0F2F5 */
+  --muted-foreground: hsl(215, 10%, 45%); /* #6B7280 */
+  --popover: hsl(0, 0%, 100%); /* #FFFFFF */
+  --popover-foreground: hsl(230, 15%, 9%); /* #1A1D29 */
+  --card: hsl(0, 0%, 100%); /* #FFFFFF */
+  --card-foreground: hsl(230, 15%, 9%); /* #1A1D29 */
+  --border: hsl(210, 11%, 90%); /* #E5E7EB */
+  --input: hsl(210, 11%, 90%); /* #E5E7EB */
+  --primary: hsl(262, 83%, 58%); /* #7C3AED - Purple primary */
+  --primary-foreground: hsl(0, 0%, 100%); /* #FFFFFF */
+  --secondary: hsl(217, 91%, 60%); /* #3B82F6 - Blue secondary */
+  --secondary-foreground: hsl(0, 0%, 100%); /* #FFFFFF */
+  --accent: hsl(210, 11%, 96%); /* #F0F2F5 */
+  --accent-foreground: hsl(230, 15%, 9%); /* #1A1D29 */
+  --destructive: hsl(0, 84%, 60%); /* #EF4444 - Red for errors */
+  --destructive-foreground: hsl(0, 0%, 100%); /* #FFFFFF */
+  --success: hsl(142, 76%, 36%); /* #10B981 - Green for success */
+  --warning: hsl(45, 93%, 47%); /* #F59E0B - Orange for warnings */
+  --ring: hsl(262, 83%, 58%); /* #7C3AED */
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: hsl(230, 15%, 9%); /* #1A1D29 */
+  --foreground: hsl(210, 11%, 98%); /* #F5F7FA */
+  --muted: hsl(230, 15%, 15%); /* #2A2F3E */
+  --muted-foreground: hsl(215, 10%, 65%); /* #9CA3AF */
+  --popover: hsl(230, 15%, 12%); /* #212738 */
+  --popover-foreground: hsl(210, 11%, 98%); /* #F5F7FA */
+  --card: hsl(230, 15%, 12%); /* #212738 */
+  --card-foreground: hsl(210, 11%, 98%); /* #F5F7FA */
+  --border: hsl(230, 15%, 20%); /* #374151 */
+  --input: hsl(230, 15%, 20%); /* #374151 */
+  --primary: hsl(262, 83%, 58%); /* #7C3AED - Purple primary (same) */
+  --primary-foreground: hsl(0, 0%, 100%); /* #FFFFFF */
+  --secondary: hsl(217, 91%, 60%); /* #3B82F6 - Blue secondary (same) */
+  --secondary-foreground: hsl(0, 0%, 100%); /* #FFFFFF */
+  --accent: hsl(230, 15%, 15%); /* #2A2F3E */
+  --accent-foreground: hsl(210, 11%, 98%); /* #F5F7FA */
+  --destructive: hsl(0, 84%, 60%); /* #EF4444 - Red for errors (same) */
+  --destructive-foreground: hsl(0, 0%, 100%); /* #FFFFFF */
+  --success: hsl(142, 76%, 36%); /* #10B981 - Green for success (same) */
+  --warning: hsl(45, 93%, 47%); /* #F59E0B - Orange for warnings (same) */
+  --ring: hsl(262, 83%, 58%); /* #7C3AED */
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+.nav-item.active {
+  @apply text-primary;
+}
+
+.nav-item:hover {
+  @apply text-primary;
+  transition: color 0.2s;
+}
+
+.glass-effect {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.dark .glass-effect {
+  background: rgba(26, 29, 41, 0.9);
+}
