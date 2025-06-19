@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { DesktopSidebar, MobileNavigation, TopBar } from "@/components/Navigation";
+import { MobileNavigation, TopBar } from "@/components/Navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -145,14 +145,12 @@ export default function AfuMall() {
 
   return (
     <div className="flex h-screen bg-background">
-      <DesktopSidebar />
-      
-      <div className="flex-1 lg:ml-64">
+      <div className="flex-1">
         <TopBar title="AfuMall" />
         
-        <main className="flex-1 overflow-y-auto pb-20 lg:pb-6">
+        <main className="flex-1 overflow-y-auto mobile-content">
           <Tabs defaultValue="shop" className="h-full">
-            <div className="border-b border-border px-4 lg:px-6">
+            <div className="border-b border-border px-4">
               <TabsList className="grid w-full max-w-md grid-cols-3">
                 <TabsTrigger value="shop">Shop</TabsTrigger>
                 <TabsTrigger value="sell">Sell</TabsTrigger>
@@ -160,7 +158,7 @@ export default function AfuMall() {
               </TabsList>
             </div>
 
-            <TabsContent value="shop" className="p-4 lg:p-6 space-y-6">
+            <TabsContent value="shop" className="p-4 space-y-6">
               {/* Search Bar */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />

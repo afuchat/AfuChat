@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { DesktopSidebar, MobileNavigation, TopBar } from "@/components/Navigation";
+import { MobileNavigation, TopBar } from "@/components/Navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -157,14 +157,12 @@ export default function AfuAI() {
 
   return (
     <div className="flex h-screen bg-background">
-      <DesktopSidebar />
-      
-      <div className="flex-1 lg:ml-64">
+      <div className="flex-1">
         <TopBar title="AfuAI" />
         
-        <main className="flex-1 overflow-hidden pb-20 lg:pb-6">
+        <main className="flex-1 overflow-hidden mobile-content">
           <Tabs defaultValue="chat" className="h-full">
-            <div className="border-b border-border px-4 lg:px-6">
+            <div className="border-b border-border px-4">
               <TabsList className="grid w-full max-w-md grid-cols-3">
                 <TabsTrigger value="chat">Chat</TabsTrigger>
                 <TabsTrigger value="features">Features</TabsTrigger>
@@ -175,7 +173,7 @@ export default function AfuAI() {
             <TabsContent value="chat" className="h-full p-0">
               <div className="flex flex-col h-full">
                 {/* Chat Messages */}
-                <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-4">
+                <div className="flex-1 overflow-y-auto p-4 space-y-4">
                   {chatMessages.map((msg) => (
                     <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                       <div className={`flex items-start space-x-3 max-w-[80%] ${msg.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>

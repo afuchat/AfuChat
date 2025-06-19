@@ -4,7 +4,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
-import { DesktopSidebar, MobileNavigation, TopBar } from "@/components/Navigation";
+import { MobileNavigation, TopBar } from "@/components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,7 +14,7 @@ import type { Post, User } from "@shared/schema";
 
 function StorySection() {
   return (
-    <div className="p-4 lg:p-6">
+    <div className="p-4">
       <div className="flex space-x-4 overflow-x-auto pb-4">
         <div className="flex-shrink-0 text-center">
           <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full p-0.5">
@@ -84,7 +84,7 @@ function PostCreation() {
   };
 
   return (
-    <div className="px-4 lg:px-6 mb-6">
+    <div className="px-4 mb-6">
       <Card>
         <CardContent className="p-4">
           <div className="flex items-start space-x-3 mb-4">
@@ -277,16 +277,14 @@ export default function Home() {
 
   return (
     <div className="flex h-screen bg-background">
-      <DesktopSidebar />
-      
-      <div className="flex-1 lg:ml-64">
+      <div className="flex-1">
         <TopBar title="Home" />
         
-        <main className="flex-1 overflow-y-auto pb-20 lg:pb-6">
+        <main className="flex-1 overflow-y-auto mobile-content">
           <StorySection />
           <PostCreation />
           
-          <div className="px-4 lg:px-6 space-y-6">
+          <div className="px-4 space-y-6">
             {postsLoading ? (
               <div className="space-y-4">
                 {[1, 2, 3].map((i) => (

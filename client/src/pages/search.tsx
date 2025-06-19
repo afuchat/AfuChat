@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { DesktopSidebar, MobileNavigation, TopBar } from "@/components/Navigation";
+import { MobileNavigation, TopBar } from "@/components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -74,13 +74,11 @@ export default function Search() {
 
   return (
     <div className="flex h-screen bg-background">
-      <DesktopSidebar />
-      
-      <div className="flex-1 lg:ml-64">
+      <div className="flex-1">
         <TopBar title="Search" />
         
-        <main className="flex-1 overflow-y-auto pb-20 lg:pb-6">
-          <div className="p-4 lg:p-6">
+        <main className="flex-1 overflow-y-auto mobile-content">
+          <div className="p-4">
             {/* Search Input */}
             <div className="relative mb-6">
               <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />

@@ -4,7 +4,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
-import { DesktopSidebar, MobileNavigation, TopBar } from "@/components/Navigation";
+import { MobileNavigation, TopBar } from "@/components/Navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -169,12 +169,10 @@ export default function Messages() {
 
   return (
     <div className="flex h-screen bg-background">
-      <DesktopSidebar />
-      
-      <div className="flex-1 lg:ml-64">
+      <div className="flex-1">
         <TopBar title="Messages" />
         
-        <main className="flex-1 overflow-hidden pb-20 lg:pb-6">
+        <main className="flex-1 overflow-hidden mobile-content">
           <div className="flex h-full">
             {/* Conversations Sidebar */}
             <div className="w-full lg:w-80 border-r border-border flex flex-col">

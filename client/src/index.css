@@ -80,3 +80,30 @@
 .dark .glass-effect {
   background: rgba(26, 29, 41, 0.9);
 }
+
+/* Mobile-specific styles */
+.safe-area-pb {
+  padding-bottom: max(env(safe-area-inset-bottom), 1rem);
+}
+
+/* Mobile viewport adjustments */
+@supports (-webkit-touch-callout: none) {
+  .mobile-height {
+    height: -webkit-fill-available;
+  }
+}
+
+/* Improved mobile navigation */
+@media (max-width: 768px) {
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .mobile-nav {
+    padding-bottom: max(env(safe-area-inset-bottom), 12px);
+  }
+  
+  .mobile-content {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+}
