@@ -11,7 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Heart, MessageCircle, Repeat2, Share, MoreHorizontal, Image, Smile, MapPin, Calendar, Mic, FileText, Zap, Globe, Users, Lock, MessageSquare } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Heart, MessageCircle, Repeat2, Share, MoreHorizontal, Image, Smile, MapPin, Calendar, Mic, FileText, Zap, Globe, Users, Lock, MessageSquare, Sparkles, Bot } from "lucide-react";
 import type { Post } from "@shared/schema";
 
 function PostComposer() {
@@ -19,6 +20,9 @@ function PostComposer() {
   const [content, setContent] = useState("");
   const [privacy, setPrivacy] = useState("everyone");
   const [isScheduled, setIsScheduled] = useState(false);
+  const [isImproving, setIsImproving] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -60,6 +64,66 @@ function PostComposer() {
   const handleSubmit = () => {
     if (!content.trim() || content.length > maxLength) return;
     createPost.mutate({ content });
+  };
+
+  const improveContent = async () => {
+    if (!content.trim()) return;
+    
+    setIsImproving(true);
+    try {
+      const response = await fetch('/api/ai/improve-post', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to improve content');
+      }
+
+      const data = await response.json();
+      setContent(data.improvedContent);
+      toast({
+        title: "Content improved",
+        description: "Your post has been enhanced by AI",
+      });
+    } catch (error) {
+      toast({
+        title: "Improvement failed",
+        description: "Unable to improve content right now",
+        variant: "destructive",
+      });
+    } finally {
+      setIsImproving(false);
+    }
+  };
+
+  const generateSuggestions = async () => {
+    try {
+      const response = await fetch('/api/ai/content-suggestions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ topic: 'social media content ideas' }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate suggestions');
+      }
+
+      const data = await response.json();
+      setSuggestions(data.suggestions);
+      setShowSuggestions(true);
+    } catch (error) {
+      toast({
+        title: "Suggestions failed",
+        description: "Unable to generate content ideas",
+        variant: "destructive",
+      });
+    }
   };
 
   const getPrivacyIcon = () => {
@@ -143,14 +207,62 @@ function PostComposer() {
             
             <div className="flex items-center space-x-2">
               {content.length > 0 && (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="rounded-full"
-                >
-                  Draft
-                </Button>
+                <>
+                  <Button 
+                    onClick={improveContent}
+                    disabled={isImproving}
+                    variant="outline" 
+                    size="sm"
+                    className="rounded-full text-purple-600 border-purple-200 hover:bg-purple-50"
+                  >
+                    {isImproving ? (
+                      <div className="w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mr-1" />
+                    ) : (
+                      <Sparkles className="w-4 h-4 mr-1" />
+                    )}
+                    Enhance
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="rounded-full"
+                  >
+                    Draft
+                  </Button>
+                </>
               )}
+              
+              <Popover open={showSuggestions} onOpenChange={setShowSuggestions}>
+                <PopoverTrigger asChild>
+                  <Button 
+                    onClick={generateSuggestions}
+                    variant="outline" 
+                    size="sm"
+                    className="rounded-full text-blue-600 border-blue-200 hover:bg-blue-50"
+                  >
+                    <Bot className="w-4 h-4 mr-1" />
+                    Ideas
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 p-4">
+                  <div className="space-y-3">
+                    <h4 className="font-semibold text-sm">AI Content Suggestions</h4>
+                    {suggestions.map((suggestion, index) => (
+                      <div 
+                        key={index}
+                        onClick={() => {
+                          setContent(suggestion);
+                          setShowSuggestions(false);
+                        }}
+                        className="p-2 text-sm bg-muted rounded-lg cursor-pointer hover:bg-muted/80 transition-colors"
+                      >
+                        {suggestion}
+                      </div>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
+              
               <Button 
                 onClick={handleSubmit} 
                 disabled={!content.trim() || content.length > maxLength || createPost.isPending}

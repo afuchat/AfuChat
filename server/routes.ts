@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { generateAIResponse, generateContentSuggestions, improvePost } from "./openai";
 import { insertPostSchema, insertCommentSchema, insertMessageSchema } from "@shared/schema";
 import { z } from "zod";
 
@@ -222,6 +223,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error creating conversation:", error);
       res.status(500).json({ message: "Failed to create conversation" });
+    }
+  });
+
+  // AI routes
+  app.post('/api/ai/chat', isAuthenticated, async (req, res) => {
+    try {
+      const { message, conversationHistory } = req.body;
+      
+      if (!message || typeof message !== 'string') {
+        return res.status(400).json({ error: 'Message is required' });
+      }
+
+      const aiResponse = await generateAIResponse(message, conversationHistory || []);
+      res.json({ response: aiResponse });
+    } catch (error) {
+      console.error('AI chat error:', error);
+      res.status(500).json({ error: 'Failed to generate AI response' });
+    }
+  });
+
+  app.post('/api/ai/content-suggestions', isAuthenticated, async (req, res) => {
+    try {
+      const { topic } = req.body;
+      
+      if (!topic || typeof topic !== 'string') {
+        return res.status(400).json({ error: 'Topic is required' });
+      }
+
+      const suggestions = await generateContentSuggestions(topic);
+      res.json({ suggestions });
+    } catch (error) {
+      console.error('Content suggestions error:', error);
+      res.status(500).json({ error: 'Failed to generate content suggestions' });
+    }
+  });
+
+  app.post('/api/ai/improve-post', isAuthenticated, async (req, res) => {
+    try {
+      const { content } = req.body;
+      
+      if (!content || typeof content !== 'string') {
+        return res.status(400).json({ error: 'Content is required' });
+      }
+
+      const improvedContent = await improvePost(content);
+      res.json({ improvedContent });
+    } catch (error) {
+      console.error('Post improvement error:', error);
+      res.status(500).json({ error: 'Failed to improve post' });
     }
   });
 
