@@ -1,0 +1,21 @@
+{
+  "name": "afuchat-app",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "NODE_ENV=development tsx server/index.ts",
+    "build": "vite build && esbuild server/index.ts --platform=node --bundle --format=esm --outdir=dist",
+    "start": "NODE_ENV=production node dist/index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "@neondatabase/serverless": "^0.10.4",
+    "drizzle-orm": "^0.29.6",
+    "ws": "^8.14.1"
+  },
+  "devDependencies": {
+    "tsx": "^3.12.7",
+    "esbuild": "^0.21.0",
+    "vite": "^5.0.10"
+  }
+}
